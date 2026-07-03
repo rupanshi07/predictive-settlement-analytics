@@ -1,0 +1,13 @@
+{
+  "roc_auc": 0.8055953714072415,
+  "average_precision": 0.5339329577682512,
+  "global_feature_importances": {
+    "ssi_mismatch_flag": 0.7598596215248108,
+    "settlement_cycle_days": 0.05120095610618591,
+    "counterparty_historical_fail_rate": 0.04627532884478569,
+    "instrument_liquidity_score": 0.04026637598872185,
+    "trade_value_usd_log": 0.038175441324710846,
+    "is_cross_border": 0.03755921125411987,
+    "is_cross_currency": 0.026663022115826607
+  }
+}
