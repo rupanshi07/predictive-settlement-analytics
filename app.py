@@ -17,96 +17,96 @@ from explain import SettlementRiskExplainer
 st.set_page_config(page_title="Settlement Risk Monitor", layout="wide")
 
 # ---------- Visual design system ----------
-# Dark, rounded-card SaaS-dashboard style: near-black content area, a
-# pure-black sidebar rail, pill-shaped tabs and buttons, and segmented
-# "token" progress bars -- kept monochrome (black / white / warm beige)
-# so severity/emphasis comes through via fill and weight, not color.
+# Light, rounded-card SaaS-dashboard style: off-white content area, a dark
+# sidebar rail for contrast, pill-shaped tabs and buttons, and segmented
+# "token" progress bars -- kept strictly grayscale (no accent hue) so
+# severity/emphasis comes through via fill and weight, not color.
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
 html, body, [class*="css"] { font-family: 'Plus Jakarta Sans', sans-serif; }
-.stApp { background-color: #0A0A09; }
+.stApp { background-color: #F4F4F2; }
 .block-container { padding-top: 2rem; }
-body, p, span, div, label { color: #EDE7DA; }
 
-section[data-testid="stSidebar"] { background-color: #000000; border-right: 1px solid #201E1A; }
-section[data-testid="stSidebar"] * { color: #EDE7DA !important; }
+section[data-testid="stSidebar"] { background-color: #111111; }
+section[data-testid="stSidebar"] * { color: #EDEDED !important; }
 
 /* Sidebar brand */
 .srm-brand {
     display: flex; align-items: center; gap: 0.6rem;
-    font-weight: 800; color: #F5F0E6 !important; font-size: 1.05rem; margin-bottom: 1.6rem;
+    font-weight: 800; color: #FFFFFF !important; font-size: 1.05rem; margin-bottom: 1.6rem;
 }
 .srm-brand-mark {
-    width: 30px; height: 30px; border-radius: 9px; background: #D9CBB0;
+    width: 30px; height: 30px; border-radius: 9px; background: #FFFFFF;
     display: inline-block;
 }
 .srm-nav-section {
     font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem;
-    letter-spacing: 0.14em; text-transform: uppercase; color: #8A8478 !important;
+    letter-spacing: 0.14em; text-transform: uppercase; color: #777777 !important;
     margin: 1.2rem 0 0.5rem 0;
 }
 div[data-testid="stSidebar"] div[role="radiogroup"] label {
     padding: 0.5rem 0.7rem; border-radius: 10px; margin-bottom: 0.2rem;
 }
 div[data-testid="stSidebar"] div[role="radiogroup"] label:has(input:checked) {
-    background-color: rgba(217,203,176,0.14);
+    background-color: rgba(255,255,255,0.12);
 }
 
 /* Header block */
 .srm-eyebrow {
     font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem;
-    letter-spacing: 0.2em; color: #A39C8C; text-transform: uppercase; margin-bottom: 0.3rem;
+    letter-spacing: 0.2em; color: #8A8A85; text-transform: uppercase; margin-bottom: 0.3rem;
 }
-.srm-title { font-size: 2.4rem; font-weight: 800; color: #F5F0E6; margin: 0 0 0.3rem 0; letter-spacing: -0.02em; }
-.srm-subtitle { color: #9C9585; font-size: 0.95rem; max-width: 700px; line-height: 1.5; margin-bottom: 1.4rem; }
+.srm-title { font-size: 2.4rem; font-weight: 800; color: #111111; margin: 0 0 0.3rem 0; letter-spacing: -0.02em; }
+.srm-subtitle { color: #6B6B66; font-size: 0.95rem; max-width: 700px; line-height: 1.5; margin-bottom: 1.4rem; }
 
 /* Rounded card base */
 .card {
-    background: #141311; border: 1px solid #262319; border-radius: 20px; padding: 1.3rem 1.5rem;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.3); height: 100%;
+    background: #FFFFFF; border-radius: 20px; padding: 1.3rem 1.5rem;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04); height: 100%;
 }
-.card-dark { background: #E9DFCB; color: #12100C; border: 1px solid #E9DFCB; }
+.card-dark { background: #111111; color: #FFFFFF; }
 
 /* Hero + mini stats */
-.hero-stat-label { font-size: 0.82rem; font-weight: 600; color: #9C9585; margin-bottom: 0.7rem; }
+.hero-stat-label { font-size: 0.82rem; font-weight: 600; color: #6B6B66; margin-bottom: 0.7rem; }
 .hero-stat-value-row { display: flex; align-items: baseline; gap: 0.6rem; }
-.hero-stat-value { font-size: 2.7rem; font-weight: 800; color: #F5F0E6; line-height: 1; }
-.hero-stat-context { color: #7C7668; font-size: 0.78rem; margin-top: 0.6rem; }
+.hero-stat-value { font-size: 2.7rem; font-weight: 800; color: #111111; line-height: 1; }
+.hero-stat-context { color: #9A9A94; font-size: 0.78rem; margin-top: 0.6rem; }
 
 /* Segmented token progress bar */
 .token-row { display: flex; gap: 5px; margin-top: 0.9rem; }
-.token { width: 22px; height: 14px; border-radius: 4px; background: #262319; }
-.token.filled { background: #D9CBB0; }
+.token { width: 22px; height: 14px; border-radius: 4px; background: #EDEDEA; }
+.token.filled { background: #111111; }
 
-.mini-stat-label { font-size: 0.78rem; font-weight: 600; color: #9C9585; margin-bottom: 0.5rem; }
-.mini-stat-value { font-size: 1.6rem; font-weight: 800; color: #F5F0E6; }
+.mini-stat-label { font-size: 0.78rem; font-weight: 600; color: #6B6B66; margin-bottom: 0.5rem; }
+.mini-stat-value { font-size: 1.6rem; font-weight: 800; color: #111111; }
 
-/* Insight callout -- beige inverted card, mirrors reference's promo tile */
+/* Insight callout -- dark card, inverted, mirrors reference's dark promo tile */
 .insight-card { margin-bottom: 1.2rem; }
-.insight-label { font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: #6B6555; margin-bottom: 0.5rem; }
-.insight-text { color: #16140F; font-size: 0.95rem; line-height: 1.55; font-weight: 500; }
+.insight-label { font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: #AAAAAA; margin-bottom: 0.5rem; }
+.insight-text { color: #F2F2F0; font-size: 0.95rem; line-height: 1.55; font-weight: 500; }
 
-/* Pill tabs */
+/* Pill tabs (Overview / Audit Log rendered via sidebar radio already;
+   these classes style the section subheads as pill labels) */
 .pill-tag {
     display: inline-block; font-size: 0.72rem; font-weight: 700;
-    padding: 0.35rem 0.85rem; border-radius: 999px; background: #D9CBB0; color: #12100C;
+    padding: 0.35rem 0.85rem; border-radius: 999px; background: #111111; color: #FFFFFF;
     margin-bottom: 0.9rem;
 }
 
 /* Trade row cards */
 .trade-card {
     display: flex; align-items: center; justify-content: space-between;
-    background: #141311; border: 1px solid #262319; border-radius: 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    background: #FFFFFF; border-radius: 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.04);
     padding: 0.9rem 1.2rem; margin-bottom: 0.6rem;
 }
 .trade-card-left { display: flex; flex-direction: column; gap: 0.15rem; }
-.trade-card-id { font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; color: #7C7668; }
-.trade-card-name { font-weight: 700; color: #F5F0E6; font-size: 0.95rem; }
-.trade-card-sub { font-size: 0.78rem; color: #8A8478; }
+.trade-card-id { font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; color: #9A9A94; }
+.trade-card-name { font-weight: 700; color: #111111; font-size: 0.95rem; }
+.trade-card-sub { font-size: 0.78rem; color: #8A8A85; }
 .trade-card-right { display: flex; align-items: center; gap: 1.1rem; }
-.trade-card-prob { font-family: 'IBM Plex Mono', monospace; font-weight: 700; color: #F5F0E6; text-align: right; }
+.trade-card-prob { font-family: 'IBM Plex Mono', monospace; font-weight: 700; color: #111111; text-align: right; }
 
 /* Severity pills -- fill/weight distinguishes emphasis, no color */
 .pill {
@@ -114,42 +114,37 @@ div[data-testid="stSidebar"] div[role="radiogroup"] label:has(input:checked) {
     letter-spacing: 0.03em; text-transform: uppercase;
     padding: 0.32rem 0.8rem; border-radius: 999px;
 }
-.pill.high { background: #D9CBB0; color: #12100C; }
-.pill.medium { background: #2A271F; color: #D9CBB0; }
-.pill.low { background: #1A1814; color: #7C7668; }
+.pill.high { background: #111111; color: #FFFFFF; }
+.pill.medium { background: #E7E7E3; color: #111111; }
+.pill.low { background: #F4F4F2; color: #9A9A94; }
 
 .risk-badge {
     display: inline-block; font-size: 0.75rem; font-weight: 700;
     letter-spacing: 0.03em; text-transform: uppercase; padding: 0.3rem 0.8rem; border-radius: 999px;
 }
-.risk-badge.high { background: #D9CBB0; color: #12100C; }
-.risk-badge.medium { background: #2A271F; color: #D9CBB0; }
-.risk-badge.low { background: #1A1814; color: #7C7668; }
+.risk-badge.high { background: #111111; color: #FFFFFF; }
+.risk-badge.medium { background: #E7E7E3; color: #111111; }
+.risk-badge.low { background: #F4F4F2; color: #9A9A94; }
 
-.srm-tradeline { font-size: 1.4rem; color: #F5F0E6; font-weight: 800; margin-bottom: 0.5rem; }
+.srm-tradeline { font-size: 1.4rem; color: #111111; font-weight: 800; margin-bottom: 0.5rem; }
 
 /* Driver bars -- capsule style, echoing the reference's rounded bar chart */
 .driver-row { margin-bottom: 0.9rem; }
-.driver-label { font-size: 0.82rem; font-weight: 600; color: #C7C0B0; margin-bottom: 0.35rem; display: flex; justify-content: space-between; }
-.driver-track { background: #262319; height: 10px; border-radius: 999px; overflow: hidden; }
-.driver-fill { background: #D9CBB0; height: 100%; border-radius: 999px; }
+.driver-label { font-size: 0.82rem; font-weight: 600; color: #444440; margin-bottom: 0.35rem; display: flex; justify-content: space-between; }
+.driver-track { background: #EDEDEA; height: 10px; border-radius: 999px; overflow: hidden; }
+.driver-fill { background: #111111; height: 100%; border-radius: 999px; }
 
 /* Filter tags */
-span[data-baseweb="tag"] { background-color: #D9CBB0 !important; border-radius: 999px !important; }
-span[data-baseweb="tag"] span { color: #12100C !important; }
+span[data-baseweb="tag"] { background-color: #111111 !important; border-radius: 999px !important; }
+span[data-baseweb="tag"] span { color: #FFFFFF !important; }
 
-/* Buttons -- solid beige pill, matches reference's "Create a New Scenario" button */
-.stButton button { background-color: #D9CBB0; color: #12100C; border: none; font-weight: 700; border-radius: 999px; padding: 0.5rem 1.3rem; }
-.stButton button:hover { background-color: #EAE0CB; color: #12100C; }
+/* Buttons -- solid black pill, matches reference's "Create a New Scenario" button */
+.stButton button { background-color: #111111; color: #FFFFFF; border: none; font-weight: 700; border-radius: 999px; padding: 0.5rem 1.3rem; }
+.stButton button:hover { background-color: #333333; color: #FFFFFF; }
 
-/* Inputs */
-div[data-testid="stTextInput"] input, div[data-baseweb="select"] > div {
-    background-color: #141311 !important; color: #EDE7DA !important; border: 1px solid #262319 !important;
-}
-div[data-testid="stSidebar"] div[data-baseweb="select"] > div { background-color: #141311 !important; }
-
-div[data-testid="stDataFrame"] { border-radius: 16px; overflow: hidden; border: 1px solid #262319; }
-hr { border-color: #262319; }
+div[data-testid="stDataFrame"] { border-radius: 16px; overflow: hidden; }
+div[data-testid="stDataFrame"] table tbody tr:nth-child(even) { background-color: #FAFAF9; }
+hr { border-color: #E5E5E1; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -203,7 +198,7 @@ def trade_card_html(row) -> str:
         </div>
         <div class="trade-card-right">
             <div class="trade-card-prob">${row['trade_value_usd']:,.0f}<div class="trade-card-id">{row['settlement_date']}</div></div>
-            <div style="min-width:60px; text-align:right; font-family:'IBM Plex Mono',monospace; color:#F5F0E6; font-weight:700;">{row['risk_score']:.1%}</div>
+            <div style="min-width:60px; text-align:right; font-family:'IBM Plex Mono',monospace; color:#111111; font-weight:700;">{row['risk_score']:.1%}</div>
             <span class="pill {row['severity'].lower()}">{row['severity']}</span>
         </div>
     </div>
@@ -314,7 +309,7 @@ if page == "Overview":
         </div>
         """, unsafe_allow_html=True)
 
-    # ---------- Insight callout: beige inverted card, mirroring the reference's promo tile ----------
+    # ---------- Insight callout: dark inverted card, mirroring the reference's promo tile ----------
     high_df = df[df["severity"] == "HIGH"]
     ssi_share_high = high_df["ssi_mismatch_flag"].mean() if len(high_df) else 0
     st.markdown(f"""
