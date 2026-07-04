@@ -97,9 +97,72 @@ div[data-testid="stMetricValue"] {
     margin-bottom: 0.6rem;
 }
 
+/* Custom driver bars, replacing the default st.bar_chart look */
+.driver-row { margin-bottom: 0.85rem; }
+.driver-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    color: #C7CEDA;
+    margin-bottom: 0.25rem;
+    display: flex;
+    justify-content: space-between;
+}
+.driver-track {
+    background: rgba(255,255,255,0.05);
+    border-radius: 3px;
+    height: 10px;
+    overflow: hidden;
+}
+.driver-fill {
+    background: linear-gradient(90deg, #C9A24B, #E2685C);
+    height: 100%;
+    border-radius: 3px;
+}
+
+/* Filter tags -- override Streamlit's default pink multiselect chips */
+span[data-baseweb="tag"] {
+    background-color: #1B2A40 !important;
+    border: 1px solid #C9A24B !important;
+}
+span[data-baseweb="tag"] span { color: #EDF1F7 !important; }
+
+/* Highlight the primary metric card */
+div[data-testid="stMetric"]:first-of-type {
+    border-color: rgba(201,162,75,0.35);
+}
+
 hr { border-color: rgba(255,255,255,0.08); }
 </style>
 """, unsafe_allow_html=True)
+
+
+FEATURE_DISPLAY_NAMES = {
+    "ssi_mismatch_flag": "SSI Mismatch",
+    "counterparty_historical_fail_rate": "Counterparty Fail History",
+    "instrument_liquidity_score": "Instrument Liquidity",
+    "settlement_cycle_days": "Settlement Cycle Length",
+    "is_cross_border": "Cross-Border",
+    "is_cross_currency": "Cross-Currency",
+    "trade_value_usd_log": "Trade Value",
+}
+
+
+def render_driver_bars(drivers_df: pd.DataFrame):
+    if drivers_df.empty:
+        st.caption("No strong individual driver — elevated baseline risk.")
+        return
+    max_val = drivers_df["shap_contribution"].max()
+    rows_html = ""
+    for _, r in drivers_df.iterrows():
+        label = FEATURE_DISPLAY_NAMES.get(r["feature"], r["feature"])
+        pct = max(4, (r["shap_contribution"] / max_val) * 100)
+        rows_html += f"""
+        <div class="driver-row">
+            <div class="driver-label"><span>{label}</span><span>+{r['shap_contribution']:.3f}</span></div>
+            <div class="driver-track"><div class="driver-fill" style="width:{pct:.0f}%"></div></div>
+        </div>
+        """
+    st.markdown(rows_html, unsafe_allow_html=True)
 
 
 def risk_badge_html(severity: str) -> str:
@@ -138,10 +201,10 @@ st.markdown(
 
 # ---------- Summary metrics ----------
 col1, col2, col3, col4 = st.columns(4)
-col1.metric("Trades monitored", f"{len(df):,}")
-col2.metric("Flagged HIGH risk", f"{(df['severity'] == 'HIGH').sum():,}")
-col3.metric("Flagged MEDIUM risk", f"{(df['severity'] == 'MEDIUM').sum():,}")
-col4.metric("Avg predicted fail rate", f"{df['risk_score'].mean():.1%}")
+col1.metric("Trades Monitored", f"{len(df):,}")
+col2.metric("High Severity", f"{(df['severity'] == 'HIGH').sum():,}")
+col3.metric("Medium Severity", f"{(df['severity'] == 'MEDIUM').sum():,}")
+col4.metric("Portfolio Fail Rate", f"{df['risk_score'].mean():.1%}")
 
 st.divider()
 
@@ -172,8 +235,20 @@ display_cols = [
     "trade_id", "counterparty_name", "counterparty_region", "instrument_type",
     "currency", "trade_value_usd", "settlement_date", "risk_score", "severity",
 ]
+COLUMN_LABELS = {
+    "trade_id": "Trade ID",
+    "counterparty_name": "Counterparty",
+    "counterparty_region": "Region",
+    "instrument_type": "Instrument",
+    "currency": "Ccy",
+    "trade_value_usd": "Value (USD)",
+    "settlement_date": "Settlement Date",
+    "risk_score": "Fail Probability",
+    "severity": "Severity",
+}
+display_df = filtered[display_cols].head(200).rename(columns=COLUMN_LABELS)
 st.dataframe(
-    filtered[display_cols].head(200).style.format({"risk_score": "{:.1%}", "trade_value_usd": "${:,.0f}"}),
+    display_df.style.format({"Fail Probability": "{:.1%}", "Value (USD)": "${:,.0f}"}),
     use_container_width=True,
     height=350,
 )
@@ -199,8 +274,7 @@ if trade_options:
 
             st.markdown("**Top contributing factors**")
             drivers_df = pd.DataFrame(explanation["top_drivers"])
-            if not drivers_df.empty:
-                st.bar_chart(drivers_df.set_index("feature")["shap_contribution"])
+            render_driver_bars(drivers_df)
 
             st.markdown("**Suggested remediation actions**")
             for action in explanation["suggested_actions"]:

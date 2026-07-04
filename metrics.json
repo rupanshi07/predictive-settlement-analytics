@@ -1,13 +1,16 @@
 {
-  "roc_auc": 0.8055953714072415,
-  "average_precision": 0.5339329577682512,
+  "roc_auc": 0.8071407241508025,
+  "average_precision": 0.5375275729159295,
+  "mean_predicted_probability": 0.11978904902935028,
+  "test_base_rate": 0.11875,
+  "decision_threshold": 0.3340255916118622,
   "global_feature_importances": {
-    "ssi_mismatch_flag": 0.7598596215248108,
-    "settlement_cycle_days": 0.05120095610618591,
-    "counterparty_historical_fail_rate": 0.04627532884478569,
-    "instrument_liquidity_score": 0.04026637598872185,
-    "trade_value_usd_log": 0.038175441324710846,
-    "is_cross_border": 0.03755921125411987,
-    "is_cross_currency": 0.026663022115826607
+    "ssi_mismatch_flag": 0.8430387377738953,
+    "settlement_cycle_days": 0.031234530732035637,
+    "counterparty_historical_fail_rate": 0.027063198387622833,
+    "is_cross_currency": 0.026010986417531967,
+    "is_cross_border": 0.025564881041646004,
+    "instrument_liquidity_score": 0.024342801421880722,
+    "trade_value_usd_log": 0.022744905203580856
   }
 }
